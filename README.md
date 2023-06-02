@@ -50,6 +50,9 @@ prefetch SRRXXXXXX
 
 fastq-dump --split-files SRRXXXXXX
 ```
+Create a txt file which contain the names of the name of sequence identifier. This will help avoid mistake when we input the name of the identifier everytime and easier to keep track because there are 56 sequence identifier. 
+To load the metagenomic data into Graham: using SRA toolkits which will automatically downloaded both strands of each identifier. 
+Since each sequence will take apx 15-20 mins to load. I plan to write a Shell script and submit it using sbatch which will simultaneously download the data. Sometimes the program may miss a few sequences, we can do wc -l to see if all the sequences are downloaded, I can also write a small script to print out the missing data sequences, so we can try to reload them again.
 
 ## 05/29
 Fastq analysis
@@ -68,7 +71,7 @@ FJJJJJJJJJJJJJJJFJJJJJJJFFFJA<-FFJAFFJFFJJJJJJJJFFJJFJJFFFJFAFFFFJJAFJ
 There are 56 FASTQ files in total 
 
 ### Create new environment to run Python on Graham (with packages) 
-*consult profs if there are other methods
+*consult profs if there are other methods*
 ```
 module load python/3.x
 python -m venv ~/my_venv
@@ -76,3 +79,13 @@ source ~/my_venv/bin/activate
 pip install pandas numpy
 deactivate 
 ```
+
+## 05/31
+Contigs: contiguous sequences of DNA that are assembled from the shorter sequences generated during sequencing. 
+Genome assembly: generate the fewest and longest contigs possible, ideally matching the number and size of the chromosomes in organism’s genome.
+Sucessfully find sequences start with forward primer and end with reverse primer
+Draft project proposal
+
+## 06/01 
+Adjust the code to only find the unique values in the both primer sets (see masterscript.py version 3) 
+Completed project proposal, waiting for feedback now 
