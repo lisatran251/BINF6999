@@ -1,1 +1,1 @@
-# EVALUATING THEORETICAL ABUNDANCE OF ANTIMICROBIAL RESISTANCE GENE TARGETS IN PUBLICLY AVAILABLE METAGENOMIC DATASETS
+# Evaluating Theoretical Abundance Of Antimicrobial Resistance Gene Targets In Publicly Available Metagenomic Datasets
