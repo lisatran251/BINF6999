@@ -1,7 +1,7 @@
 # Evaluating Theoretical Abundance Of Antimicrobial Resistance Gene Targets In Publicly Available Metagenomic Dataset
 
 ## 05/27 
-### Some terminologies for review 
+Some terminologies for review 
 Primer is a short DNA or RNA sequence that serves as starting point for DNA synthesis. It is typically designed to be complementary to a specific target region of the DNA template that you want to amplify or analyze. 
 
 In term of PCR, which is a technique to amplify specific DNA sequences, two primers are used: a forward primer and a reverse primer. These primers are typically designed to bind to opposite ends of the target DNA sequence. 
@@ -51,3 +51,28 @@ prefetch SRRXXXXXX
 fastq-dump --split-files SRRXXXXXX
 ```
 
+## 05/29
+Fastq analysis
+@SRR8931189.1 1 length=150
+NCCTTGGAGGGATGTTTACCCTGCAAAATCATTTTGAAAACTGCATGAGGCTTTCTATTGGCTCTTGGTCTGAAGAAGTT
+GAACAAAAATTAAAACTATCAGGGAAATTGGCTGCAAAGATGTAAAACCCTAAGCGGATCCAAAAACCTC
++SRR8931189.1 1 length=150
+#AAFFJJJJJJJJAJFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJJJJJJJJJJJJJJJJJAJFJJJFJJJJJAJFJ
+FJJJJJJJJJJJJJJJFJJJJJJJFFFJA<-FFJAFFJFFJJJJJJJJFFJJFJJFFFJFAFFFFJJAFJ
+
+1. SRR8931189.93: identifier with 93 is the internal identifier?, length 148 bps
+2. NCC…CTC: DNA sequence, N is unknown or ‘any’ nucleotide
+3. +: start of same seq identifier, separate seq from quality score
+4. AAF…AFJ: quality score 
+
+There are 56 FASTQ files in total 
+
+### Create new environment to run Python on Graham (with packages) 
+*consult profs if there are other methods
+```
+module load python/3.x
+python -m venv ~/my_venv
+source ~/my_venv/bin/activate
+pip install pandas numpy
+deactivate 
+```
