@@ -34,18 +34,20 @@ Assembly:
 
 ## 05/28
 ### DARTE-QM_primer_design
-	1	target_gene: This is the identifier of the gene that the primer is designed to amplify. It's often a combination of the GenBank accession number and the location of the gene in the sequence.
-	2	target_locus: Similar to target_gene, it provides a reference to the location of the target gene within a specific genome sequence.
-	3	F_truseq and R_truseq: These are the sequences of the forward (F) and reverse (R) primers respectively. These sequences will bind to complementary sequences in the DNA that flank the target sequence.
-	4	Product_length: This is the length of the DNA fragment that would be produced if the primers successfully bind to their target and a DNA polymerase extends the primer. It includes the length of the sequence between the primers as well as the primers themselves.
-	5	F_length and R_length: These are the lengths of the forward and reverse primers.
-	6	F_GC and R_GC: These values represent the GC content of the forward and reverse primers respectively. The GC content of a DNA sequence is the percentage of nucleotides in the sequence that are either guanine (G) or cytosine (C). A higher GC content in a primer can increase its melting temperature, potentially affecting the conditions needed for successful PCR.
-	7	product: This represents the expected sequence of the entire amplicon – that is, the sequence that would be produced if a PCR were conducted with these primers. It includes the sequences of the primers themselves (at the beginning and end of the sequence) and the sequence that lies between them in the DNA.
+target_gene: This is the identifier of the gene that the primer is designed to amplify. It's often a combination of the GenBank accession number and the location of the gene in the sequence.
+target_locus: Similar to target_gene, it provides a reference to the location of the target gene within a specific genome sequence.
+F_truseq and R_truseq: These are the sequences of the forward (F) and reverse (R) primers respectively. These sequences will bind to complementary sequences in the DNA that flank the target sequence.
+Product_length: This is the length of the DNA fragment that would be produced if the primers successfully bind to their target and a DNA polymerase extends the primer. It includes the length of the sequence between the primers as well as the primers themselves.
+F_length and R_length: These are the lengths of the forward and reverse primers.
+F_GC and R_GC: These values represent the GC content of the forward and reverse primers respectively. The GC content of a DNA sequence is the percentage of nucleotides in the sequence that are either guanine (G) or cytosine (C). A higher GC content in a primer can increase its melting temperature, potentially affecting the conditions needed for successful PCR.
+product: This represents the expected sequence of the entire amplicon – that is, the sequence that would be produced if a PCR were conducted with these primers. It includes the sequences of the primers themselves (at the beginning and end of the sequence) and the sequence that lies between them in the DNA.
   
 ### How to download the data from SRA NCBI 
-Module spider sra-toolkit
+```
+module spider sra-toolkit
 
 prefetch SRRXXXXXX
 
 fastq-dump --split-files SRRXXXXXX
+```
 
