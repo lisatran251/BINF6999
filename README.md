@@ -81,11 +81,11 @@ deactivate
 ```
 
 ## 05/31
-Contigs: contiguous sequences of DNA that are assembled from the shorter sequences generated during sequencing. 
-Genome assembly: generate the fewest and longest contigs possible, ideally matching the number and size of the chromosomes in organism’s genome. 
-Sucessfully find sequences start with forward primer and end with reverse primer 
-Draft project proposal
+- Contigs: contiguous sequences of DNA that are assembled from the shorter sequences generated during sequencing. 
+- Genome assembly: generate the fewest and longest contigs possible, ideally matching the number and size of the chromosomes in organism’s genome. 
+- Sucessfully find sequences start with forward primer and end with reverse primer 
+- Draft project proposal
 
 ## 06/01
-Adjust the code to only find the unique values in the both primer sets (see masterscript.py version 3).
-Completed project proposal, waiting for feedback now 
+- Adjust the code to only find the unique values in the both primer sets (see masterscript.py version 3).
+- Completed project proposal, waiting for feedback now 
