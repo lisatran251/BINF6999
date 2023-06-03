@@ -1,6 +1,6 @@
 # python -m venv ~/my_venv
 # source ~/my_venv/bin/activate
-# pip install pandas numpy biopython
+# pip install pandas numpy biopython argparse
 
 # Check the status of the job 
 # squeue -u thuyduye or squeue -j job_id
@@ -9,10 +9,21 @@
 # Test 2: find sequences start with any forward primer and end with any reverse primer (PASS)
 # Test 3: find sequences start with any forward primer or its reverse complementary and end with any of reverse primer or its reverse complementary (PASS)
 
+#How to run: python3 sample.py ex.fastq
+
 import pandas as pd
 import re
 from Bio.Seq import Seq
-from Bio import SeqIO
+from Bio import SeqI
+import argparse
+
+# Create the parser
+parser = argparse.ArgumentParser(description="Parse input and output file names")
+parser.add_argument('input_file', type=str, help='Input file name')
+
+# Parse the arguments
+args = parser.parse_args()
+input_file = args.input_file
 
 # Read the primer CSV file into a DataFrame
 df = pd.read_csv('DARTE-QM_primer_design.csv')
@@ -30,53 +41,58 @@ R_primers = df['R_truseq'].unique().tolist()
 F_reverse_complement = [str(Seq(primer).reverse_complement()) for primer in F_primers]
 R_reverse_complement = [str(Seq(primer).reverse_complement()) for primer in R_primers]
 
-# Create empty df for storing the results
-result_df = pd.DataFrame(columns=['F_primer','R_primer','Product', 'Start', 'End', 'Length'])
-result_reverse_df = pd.DataFrame(columns=['F_reverse_complement','R_reverse_complement','Product', 'Start', 'End', 'Length'])
+# Precompile regular expressions
+patterns = [(re.compile(f'({F_primer})(.*?)({R_primer})'), F_primer, R_primer) 
+            for F_primer in F_primers for R_primer in R_primers]
 
-# Define the sequence
-with open('contigs_short2.fasta','r') as handle:
+rev_patterns = [(re.compile(f'({F_rev_comp})(.*?)({R_rev_comp})'), F_rev_comp, R_rev_comp) 
+                for F_rev_comp in F_reverse_complement for R_rev_comp in R_reverse_complement]
+
+# Store results in lists first
+results = []
+rev_results = []
+
+# Read the sequence
+with open(input_file,'r') as handle:
     records = SeqIO.parse(handle, 'fasta')
+
     for record in records:
         sequence = str(record.seq)
         
-        # Loop through each forward and reverse primer
-        for F_primer in F_primers:
-            for R_primer in R_primers:
-                pattern = f'({F_primer})(.*?)({R_primer})'
-                # Search the sequence with the pattern
-                matches = re.finditer(pattern, sequence)
-                
-                for match in matches:
-                    # If found, append the result to the result df
-                    result_df = result_df.append({
-                        'F_primer': F_primer,
-                        'R_primer': R_primer,
-                        'Product': match.group(),
-                        'Start': match.start(),
-                        'End': match.end(),
-                        'Length': match.end() - match.start()
-                    }, ignore_index=True)
+        # Loop through each pattern
+        for pattern, F_primer, R_primer in patterns:
+            matches = pattern.finditer(sequence)
+            for match in matches:
+                # Append the results to the list
+                results.append({
+                    'F_primer': F_primer,
+                    'R_primer': R_primer,
+                    'Product': match.group(),
+                    'Start': match.start(),
+                    'End': match.end(),
+                    'Length': match.end() - match.start()
+                })
 
-        for F_rev_comp in F_reverse_complement:
-            for R_rev_comp in R_reverse_complement:
-                rev_pattern = f'({F_rev_comp})(.*?)({R_rev_comp})' 
-                # Search the sequence with the reverse pattern
-                rev_matches = re.finditer(rev_pattern, sequence)
-                
-                for match in rev_matches:
-                    # If found, append the result to the result reverse df
-                    result_reverse_df = result_reverse_df.append({
-                        'F_reverse_complement': F_rev_comp,
-                        'R_reverse_complement': R_rev_comp,
-                        'Product': match.group(),
-                        'Start': match.start(),
-                        'End': match.end(),
-                        'Length': match.end() - match.start()
-                    }, ignore_index=True)
+        for rev_pattern, F_rev_comp, R_rev_comp in rev_patterns:
+            rev_matches = rev_pattern.finditer(sequence)
+            for match in rev_matches:
+                rev_results.append({
+                    'F_reverse_complement': F_rev_comp,
+                    'R_reverse_complement': R_rev_comp,
+                    'Product': match.group(),
+                    'Start': match.start(),
+                    'End': match.end(),
+                    'Length': match.end() - match.start()
+                })
 
-result_df.to_csv('result.csv', sep='\t', index=False)
-result_reverse_df.to_csv('result_reverse.csv', sep='\t', index=False)
+# Convert results to DataFrame after the loop
+result_df = pd.DataFrame(results)
+result_reverse_df = pd.DataFrame(rev_results)
+
+print(result_df)
+print(result_reverse_df)
+# result_df.to_csv('result.csv', sep='\t', index=False)
+# result_reverse_df.to_csv('result_reverse.csv', sep='\t', index=False)
 
 # # Iterate through result_df and result_reverse_df to check the matching keys in primer_dict
 # for _, row in result_df.iterrows():
@@ -94,4 +110,3 @@ result_reverse_df.to_csv('result_reverse.csv', sep='\t', index=False)
 #         print("Target Gene: ", primer_dict[key]['target_gene'])
 #         print("Target Locus: ", primer_dict[key]['target_locus'])
 #         print("\n")
-
