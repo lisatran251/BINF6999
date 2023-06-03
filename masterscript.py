@@ -8,6 +8,7 @@
 # Test 1: find sequences start with forward primer and end with reverse primer (PASS)
 # Test 2: find sequences start with any forward primer and end with any reverse primer (PASS)
 # Test 3: find sequences start with any forward primer or its reverse complementary and end with any of reverse primer or its reverse complementary (PASS)
+# Test 4: create a dictionary and match the product found against it (PASS)
 
 import pandas as pd
 import re
