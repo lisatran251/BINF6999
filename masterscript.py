@@ -97,22 +97,49 @@ with open(input_file,'r') as handle:
 result_df = pd.DataFrame(results)
 result_reverse_df = pd.DataFrame(rev_results)
 
-# print(result_df)
-# print(result_reverse_df)
+
 # result_df.to_csv('result.csv', sep='\t', index=False)
 # result_reverse_df.to_csv('result_reverse.csv', sep='\t', index=False)
 
-#Iterate through result_df and result_reverse_df to check the matching keys in primer_dict
-for _, row in result_df.iterrows():
+# Iterate through result_df and result_reverse_df to check the matching keys in primer_dict
+result_df['Target gene'] = 'N/A'
+result_reverse_df['Target gene'] = 'N/A'
+
+for index, row in result_df.iterrows():
     key = (row['Product'], row['Length'])
     if key in primer_dict:
-        print("Product: ", row['Product'])
-        print("Target Gene: ", primer_dict[key]['target_gene'])
-        print("\n")
+        result_df.loc[index, 'Target gene'] = primer_dict[key]['target_gene']
 
-for _, row in result_reverse_df.iterrows():
+for index, row in result_reverse_df.iterrows():
     key = (row['Product'], row['Length'])
     if key in reverse_primer_dict:
-        print("Product: ", row['Product'])
-        print("Target Gene: ", reverse_primer_dict[key]['target_gene'])
-        print("\n")
+        result_reverse_df.loc[index, 'Target gene'] = reverse_primer_dict[key]['target_gene']
+
+# print(result_df)
+# print(result_reverse_df)
+# result_df.to_csv('trial1.csv', sep='\t', index=False)
+# result_reverse_df.to_csv('trial1_plus.csv', sep='\t', index=False)
+
+# Filter out rows where 'Target gene' is 'N/A' in result_df
+result_df_filtered = result_df[result_df['Target gene'] != 'N/A']
+
+# Count the occurrences of each gene in result_df
+result_df_counts = result_df.groupby('Target gene').size().reset_index(name='Count')
+
+# Filter out rows where 'Target gene' is 'N/A' in result_reverse_df
+result_reverse_df_filtered = result_reverse_df[result_reverse_df['Target gene'] != 'N/A']
+
+# Count the occurrences of each gene in result_reverse_df
+result_reverse_df_counts = result_reverse_df.groupby('Target gene').size().reset_index(name='Count')
+
+# Concatenate the results
+total_counts = pd.concat([result_df_counts, result_reverse_df_counts])
+
+# Group by the gene name and sum the counts
+total_counts = total_counts.groupby('Target gene')['Count'].sum().reset_index()
+
+# Print the new DataFrame
+print(total_counts)
+
+# # Save the new DataFrame to a CSV file
+# total_counts.to_csv('gene_counts.csv', sep='\t', index=False)
