@@ -8,6 +8,10 @@
 # Test 1: find sequences start with forward primer and end with reverse primer (PASS)
 # Test 2: find sequences start with any forward primer and end with any reverse primer (PASS)
 # Test 3: find sequences start with any reverse complementary and end with any of reverse primer or its reverse complementary (PASS)
+# Test 4: find the start and end position, and the length of the product (PASS)
+# Test 5: find target gene that matched length and product (PASS)
+# Test 6 (del): count occurence of ea. target gene (PASS)
+# Test 7: Overlaps 
 
 #How to run: python3 sample.py ex.fastq
 
