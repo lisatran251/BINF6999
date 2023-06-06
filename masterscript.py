@@ -7,7 +7,7 @@
 
 # Test 1: find sequences start with forward primer and end with reverse primer (PASS)
 # Test 2: find sequences start with any forward primer and end with any reverse primer (PASS)
-# Test 3: find sequences start with any forward primer or its reverse complementary and end with any of reverse primer or its reverse complementary (PASS)
+# Test 3: find sequences start with any reverse complementary and end with any of reverse primer or its reverse complementary (PASS)
 
 #How to run: python3 sample.py ex.fastq
 
@@ -30,8 +30,11 @@ df = pd.read_csv('DARTE-QM_primer_design.csv')
 # Add a new column to the DataFrame with the reverse complement of the product
 df['product_reverse_complement'] = df['product'].apply(lambda x: str(Seq(x).reverse_complement()))
 
+# Create dictionaries for primers in regular and reverse complement primers
 primer_dict = {}
 reverse_primer_dict = {}
+
+
 for _, row in df.iterrows():
     key = (row['product'], int(row['Product_length']))
     value = {'target_gene': row['target_gene'], 'target_locus': row['target_locus']}
@@ -115,31 +118,25 @@ for index, row in result_reverse_df.iterrows():
     if key in reverse_primer_dict:
         result_reverse_df.loc[index, 'Target gene'] = reverse_primer_dict[key]['target_gene']
 
-# print(result_df)
-# print(result_reverse_df)
+print(result_df)
+print(result_reverse_df)
 # result_df.to_csv('trial1.csv', sep='\t', index=False)
 # result_reverse_df.to_csv('trial1_plus.csv', sep='\t', index=False)
 
-# Filter out rows where 'Target gene' is 'N/A' in result_df
-result_df_filtered = result_df[result_df['Target gene'] != 'N/A']
+# # Count the occurrences of each gene in result_df
+# result_df_counts = result_df.groupby('Target gene').size().reset_index(name='Count')
 
-# Count the occurrences of each gene in result_df
-result_df_counts = result_df.groupby('Target gene').size().reset_index(name='Count')
+# # Count the occurrences of each gene in result_reverse_df
+# result_reverse_df_counts = result_reverse_df.groupby('Target gene').size().reset_index(name='Count')
 
-# Filter out rows where 'Target gene' is 'N/A' in result_reverse_df
-result_reverse_df_filtered = result_reverse_df[result_reverse_df['Target gene'] != 'N/A']
+# # Concatenate the results
+# total_counts = pd.concat([result_df_counts, result_reverse_df_counts])
 
-# Count the occurrences of each gene in result_reverse_df
-result_reverse_df_counts = result_reverse_df.groupby('Target gene').size().reset_index(name='Count')
+# # Group by the gene name and sum the counts
+# total_counts = total_counts.groupby('Target gene')['Count'].sum().reset_index()
 
-# Concatenate the results
-total_counts = pd.concat([result_df_counts, result_reverse_df_counts])
-
-# Group by the gene name and sum the counts
-total_counts = total_counts.groupby('Target gene')['Count'].sum().reset_index()
-
-# Print the new DataFrame
-print(total_counts)
+# # # Print the new DataFrame
+# # print(total_counts)
 
 # # Save the new DataFrame to a CSV file
 # total_counts.to_csv('gene_counts.csv', sep='\t', index=False)
