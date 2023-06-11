@@ -1,5 +1,4 @@
 # python -m venv ~/my_venv
-
 # source ~/my_venv/bin/activate
 # pip install pandas numpy biopython argparse
 
@@ -23,6 +22,7 @@
 import pandas as pd
 from Bio.Seq import Seq
 from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
 import argparse
 import csv
 
@@ -68,9 +68,12 @@ all_primers = F_primers | R_primers | F_reverse_complement | R_reverse_complemen
 # Read the sequence
 with open(input_file,'r') as handle:
     records = SeqIO.parse(handle, 'fasta')
-    with open('out_test.csv', 'w', newline='') as result_file:
+    with open('output.csv', 'w', newline='') as result_file:
         csv_writer = csv.writer(result_file)
         csv_writer.writerow(['Product', 'Start position', 'End position', 'Length', 'Start Primer', 'End Primer', 'From reverse complement', 'Target Gene'])
+
+        # List to store non-matching products
+        non_matching_products = []
 
         # Iterate over each sequence record in the input file
         for record in records:
@@ -93,6 +96,10 @@ with open(input_file,'r') as handle:
                         # Write the information to the csv file
                         csv_writer.writerow([product, f_pos, r_pos + len(r_primer), len(product), f_primer, r_primer, 'No', target_gene])
 
+                        # If the target gene is 'N/A' and product length is between 150 and 400 base pairs, add the product to the non_matching_products list
+                        if target_gene == 'N/A' and 150 <= len(product) <= 400:
+                            non_matching_products.append(SeqRecord(Seq(product), id=f'{record.id}_{f_pos}_{r_pos}', description='Non-matching product'))
+
             # Repeat the process with reverse complement primers
             for f_rev_comp in F_reverse_complement:
                 for r_rev_comp in R_reverse_complement:
@@ -103,4 +110,36 @@ with open(input_file,'r') as handle:
                         product = sequence[r_pos:f_pos+len(f_rev_comp)]
                         target_gene = reverse_primer_dict.get((product, len(product)), {}).get('target_gene', 'N/A')
                         csv_writer.writerow([product, r_pos, f_pos + len(f_rev_comp), len(product), r_rev_comp, f_rev_comp, 'Yes', target_gene])
+
+                        # If the target gene is 'N/A' and product length is between 150 and 400 base pairs, add the product to the non_matching_products list
+                        if target_gene == 'N/A' and 150 <= len(product) <= 400:
+                            non_matching_products.append(SeqRecord(Seq(product), id=f'{record.id}_{r_pos}_{f_pos}', description='Non-matching product'))
+
+# Write non-matching products to a FASTA file
+with open('non_matching_products.fasta', 'w') as output_handle:
+    SeqIO.write(non_matching_products, output_handle, 'fasta')
+
+
+# bwa index target_seq.fa
+
+# bwa mem target_seq.fa non_matching_products.fasta > aligned_reads.sam
+
+# samtools view -bS aligned_reads.sam > aligned_reads.bam
+
+# samtools sort aligned_reads.bam -o sorted_reads.bam
+
+# samtools index sorted_reads.bam
+
+
+
+# gatk RealignerTargetCreator -R target_seq.fa -I sorted_reads.bam -o target_intervals.list
+
+# gatk IndelRealigner -R reference.fasta -I sorted_reads.bam -targetIntervals target_intervals.list -o realigned_reads.bam
+
+# gatk HaplotypeCaller -R reference.fasta -I realigned_reads.bam -O raw_variants.vcf
+
+# gatk VariantRecalibrator -R reference.fasta -V raw_variants.vcf -O recal_data.table
+
+# gatk ApplyVQSR -R reference.fasta -V raw_variants.vcf --recal-file recal_data.table -O filtered_variants.vcf
+
 
