@@ -17,6 +17,10 @@
 # abricate --check
 # abricate --list
 
+# grep -c '^>' ex.fasta
+
+#rm *chunk chunk* *chunk* info.txt *out non*
+
 #How to run: python3 sample.py ex.fastq
 
 import pandas as pd
@@ -68,9 +72,9 @@ all_primers = F_primers | R_primers | F_reverse_complement | R_reverse_complemen
 # Read the sequence
 with open(input_file,'r') as handle:
     records = SeqIO.parse(handle, 'fasta')
-    with open('output.csv', 'w', newline='') as result_file:
+    with open('output3.csv', 'a', newline='') as result_file:
         csv_writer = csv.writer(result_file)
-        csv_writer.writerow(['Product', 'Start position', 'End position', 'Length', 'Start Primer', 'End Primer', 'From reverse complement', 'Target Gene'])
+        #csv_writer.writerow(['Product', 'Start position', 'End position', 'Length', 'Start Primer', 'End Primer', 'From reverse complement', 'Target Gene'])
 
         # List to store non-matching products
         non_matching_products = []
@@ -116,9 +120,8 @@ with open(input_file,'r') as handle:
                             non_matching_products.append(SeqRecord(Seq(product), id=f'{record.id}_{r_pos}_{f_pos}', description='Non-matching product'))
 
 # Write non-matching products to a FASTA file
-with open('non_matching_products.fasta', 'w') as output_handle:
+with open('non_matching_products.fasta', 'a') as output_handle:
     SeqIO.write(non_matching_products, output_handle, 'fasta')
-
 
 # bwa index target_seq.fa
 
