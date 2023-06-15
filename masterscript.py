@@ -2,7 +2,7 @@
 # source ~/my_venv/bin/activate
 # pip install pandas numpy biopython argparse
 
-# Check the status of the job 
+# Check the status of the jobs 
 # squeue -u thuyduye or squeue -j job_id
 
 # Test 1: find sequences start with forward primer and end with reverse primer (PASS)
