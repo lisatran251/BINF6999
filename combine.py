@@ -56,8 +56,8 @@ def extract_products(input_file, primer_file_path):
                     r_pos = sequence.find(r_rev_comp)
                     f_pos = sequence.find(f_rev_comp)
 
-                    if r_pos < f_pos and r_pos != -1 and f_pos != -1:
-                        product = sequence[r_pos:f_pos+len(f_rev_comp)]
+                    if f_pos > r_pos and f_pos != -1 and r_pos != -1:
+                        product = str(Seq(sequence[r_pos:f_pos+len(f_rev_comp)]).reverse_complement())
                         # Add the information to the DataFrame
                         results_df = results_df.append({'ID': record.id, 'Product': product, 'Start position': r_pos, 'End position': f_pos + len(f_rev_comp), 'Length': len(product), 'Start Primer': r_rev_comp, 'End Primer': f_rev_comp, 'From reverse complement': 'Yes'}, ignore_index=True)
 
@@ -91,29 +91,31 @@ def match_products(primer_file, result_file):
             row2['target_locus'] = match['target_locus'].values[0]
         
             # Append the row to matching_rows list
-            matching_rows.append(row2)
+            matching_rows.append(pd.DataFrame([row2]))
         else:
             # If no match is found, append this product to the list for the new fasta file
             records.append(SeqRecord(Seq(row2['Product']), id=row2['ID']))
         
             # Append the row to nonmatching_rows list
-            nonmatching_rows.append(row2)
+            nonmatching_rows.append(pd.DataFrame([row2]))
         
-    # Create dataframes from the matching and non-matching rows
-    matching_df = pd.DataFrame(matching_rows)
-    nonmatching_df = pd.DataFrame(nonmatching_rows)
+    # Concatenate all dataframes in the matching and non-matching rows lists if the lists are not empty
+    matching_df = pd.concat(matching_rows) if matching_rows else None
+    nonmatching_df = pd.concat(nonmatching_rows) if nonmatching_rows else None
 
-    # Append to the existing CSV files
-    with open('foundGene.csv', 'a') as f:
-        matching_df.to_csv(f, header=f.tell()==0, index=False)
-
-    with open('nonmatchingGene.csv', 'a') as f:
-        nonmatching_df.to_csv(f, header=f.tell()==0, index=False)
+    # Append to the existing CSV files if the dataframes are not None
+    if matching_df is not None:
+        with open('foundGene.csv', 'a') as f:
+            matching_df.to_csv(f, header=f.tell()==0, index=False)
+    
+    if nonmatching_df is not None:
+        with open('nonmatchingGene.csv', 'a') as f:
+            nonmatching_df.to_csv(f, header=f.tell()==0, index=False)
 
     # Append to the existing fasta file
-    with open('nonmatchingGene.fasta', 'a') as f:
-        SeqIO.write(records, f, "fasta")
-
+    if records:
+        with open('nonmatchingGene.fasta', 'a') as f:
+            SeqIO.write(records, f, "fasta")
 
 if __name__ == "__main__":
     # Create the parser
